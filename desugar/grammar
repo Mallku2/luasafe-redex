@@ -1,0 +1,163 @@
+%token STRING
+%token NUMBER
+%token HEX-NMBR-BINPOT
+%token NAME
+%nonassoc  'BEGINNING_WHILE'
+%nonassoc  'BEGINNING_DO_END'
+%left  'OR'
+%left  'AND'
+%left  'LT' 'GT' 'LE' 'GE' 'EQ' 'NOTEQ'
+%right  'CONCAT'
+%left  '+' '-'
+%left  '*' '/' '%'
+%left  'NOT' '#' 'UNM'
+%right  '^'
+%start (chunk)
+%%
+chunk: block 
+;
+block: stats 
+| retstat 
+| stats retstat 
+| 
+;
+stats: stat 
+| stats stat 
+;
+prefixexp: var 
+| '(' exp ')' 
+| functioncall 
+;
+stat: ';' 
+| varlist '=' explist 
+| 'BREAK' 
+| statfunctioncall 
+| beginning_do block 'END' 
+| beginning_while exp 'DO' block 'END' 
+| 'LOCAL' namelist 
+| 'LOCAL' namelist '=' explist 
+| if_guard_branch 'END' 
+| if_guard_branch else_elseif 'END' 
+| 'FUNCTION' dotsepnamelist funcbody 
+| 'FUNCTION' method_name funcbody 
+| local_function funcbody 
+| numeric_for_beginning block 'END' 
+| generic_for_beginning block 'END' 
+;
+generic_for_beginning: 'FOR' namelist 'IN' explist 'DO' 
+;
+numeric_for_beginning: 'FOR' NAME '=' exp ',' exp ',' exp 'DO' 
+| 'FOR' NAME '=' exp ',' exp 'DO' 
+;
+method_name: dotsepnamelist ':' NAME 
+;
+local_function: 'LOCAL' 'FUNCTION' NAME 
+;
+beginning_if: 'IF' 
+;
+beginning_else: 'ELSE' 
+;
+beginning_elseif: 'ELSEIF' 
+;
+if_guard_branch: beginning_if exp 'THEN' block 
+;
+elseif_guard_branch: beginning_elseif exp 'THEN' block 
+;
+else_elseif: beginning_else block 
+| elseif_guard_branch 
+| elseif_guard_branch else_elseif 
+;
+beginning_while: 'WHILE' %prec BEGINNING_WHILE
+;
+beginning_do: 'DO' %prec BEGINNING_DO_END
+;
+var: NAME 
+| prefixexp '[' exp ']' 
+| prefixexp '.' NAME 
+;
+funcbody_formal_parameters: '(' parlist ')' 
+| '(' ')' 
+;
+funcbody: funcbody_formal_parameters block 'END' 
+;
+retstat: 'RETURN' 
+| 'RETURN' ';' 
+| 'RETURN' explist 
+| 'RETURN' explist ';' 
+;
+explist: exp 
+| explist ',' exp 
+;
+exp: 'VARARG' 
+| STRING 
+| NUMBER 
+| HEX-NMBR-BINPOT 
+| 'NIL' 
+| 'TRUE' 
+| 'FALSE' 
+| exp '+' exp 
+| exp '-' exp 
+| exp '*' exp 
+| exp '/' exp 
+| exp '%' exp 
+| exp '^' exp 
+| exp 'LT' exp 
+| exp 'LE' exp 
+| exp 'GT' exp 
+| exp 'GE' exp 
+| exp 'EQ' exp 
+| exp 'NOTEQ' exp 
+| exp 'CONCAT' exp 
+| exp 'AND' exp 
+| exp 'OR' exp 
+| 'NOT' exp 
+| '#' exp 
+| '-' exp %prec UNM
+| tableconstructor 
+| prefixexp 
+| functiondef 
+;
+varlist: var 
+| varlist ',' var 
+;
+functioncall: prefixexp args 
+| prefixexp ':' NAME args 
+;
+statfunctioncall: prefixexp args 
+| prefixexp ':' NAME args 
+;
+args: '(' explist ')' 
+| '(' ')' 
+| tableconstructor 
+| STRING 
+;
+namelist: NAME 
+| namelist ',' NAME 
+;
+parlist: namelist 
+| namelist ',' 'VARARG' 
+| 'VARARG' 
+;
+func_signature: 'FUNCTION' '(' parlist ')' 
+| 'FUNCTION' '(' ')' 
+;
+functiondef: func_signature block 'END' 
+;
+dotsepnamelist: NAME 
+| dotsepnamelist '.' NAME 
+;
+tableconstructor: '{' fieldlist '}' 
+| '{' '}' 
+;
+fieldlist: field 
+| fieldlist fieldsep field 
+| fieldlist fieldsep 
+;
+fieldsep: ',' 
+| ';' 
+;
+field: '[' exp ']' '=' exp 
+| NAME '=' exp 
+| exp 
+;
+%%
