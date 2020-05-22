@@ -1,5 +1,4 @@
 # luasafe-redex
-Mechanization in Redex of LuaSafe
 
 This is the Redex mechanization of LuaSafe, a prototype tool that helps to uncover potential misuses of
 weak tables, in Lua 5.2 programs. For a formal introduction, see the paper "Understanding Lua’s Garbage 
@@ -12,7 +11,6 @@ To install Racket's IDE DrRacket, simply download the installer that corresponds
 
 2. Structure of the mechanization
 
-The modules' distribution mimics the structure of the semantics presented on the accompanying paper. Its main components are:
 * grammar.rkt: grammar of the language.
 * type_inference.rkt: mechanization of our type inference algorithm
 * typing.rkt: mechanization of our type checking algorithm
