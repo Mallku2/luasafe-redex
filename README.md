@@ -1,8 +1,8 @@
 # luasafe-redex
 
 This is the Redex mechanization of LuaSafe, a prototype tool that helps to uncover potential misuses of
-weak tables, in Lua 5.2 programs. For a formal introduction, see the paper "Understanding Lua’s Garbage 
-Collection - Towards a Formalized Static Analyzer". For a quick introduction about the capabilities of
+weak tables, in Lua 5.2 programs. For a formal introduction, see the paper *"Understanding Lua’s Garbage 
+Collection - Towards a Formalized Static Analyzer"*. For a quick introduction about the capabilities of
 the tool, see module tests/luasafe_test_suite.rkt.
 
 1. **Installation of DrRacket**
