@@ -28,9 +28,6 @@
 
 (define (luasafe program)
   (begin
-    ; infer types of program
-    (println "type inference: ")
-    
     (define typed_program
       (term (type_term
              (in-hole 
@@ -40,8 +37,6 @@
                                               end)) \})
                 in hole end)
               ,(parse-this program #f (void))))))
-    (println "  done")
-    
     (if (equal? (term (-> "the term cannot be typed" <-)) typed_program)
 
         typed_program

@@ -6,7 +6,7 @@
 
 (provide (all-defined-out))
 
-(define-extended-language ext-lang-typed ext-lang
+(define-extended-language core-lang-typed core-lang
   
   ;                                                        
   ;                                                        
@@ -140,17 +140,24 @@
               (typedvar ... (<<< : t))]
 
   [functiondef ....
-               (t function Name parameters block end)]
+               (t function Name parameters s end)]
 
   ; extensions to C for the typed language
-  [C ....
-     (local typedvar = C in s end)
-     (local typedvar ... = e_1 ... C e_2 ... in s end)
-     (local typedvar ... = e ... in C end)
-     ; this context is added to better express execution flow of 3-address code
-     (local C in s end)
-     (t function Name parameters C end)
-     ]
+  [Ccore ....
+         (local typedvar = Ce in s end)
+         (local typedvar ... = e_1 ... Ce e_2 ... in s end)
+         (local typedvar ... = e ... in C end)
+         ; this context is added to better express execution flow of 3-address code
+         (local C in s end)
+         (t function Name parameters C end)]
+
+  [Cenw ....
+        (function Name_1 (Name_2 ...) Cnw end)
+        (function Name_1 (Name_2 ... <<<) Cnw end)]
+
+  [Ccorenw ....
+           (local typedvar ... = e ... Cenw e ... in s end)
+           (local typedvar ... = e ... in Cnw end)]
 
   [e ....
      t]
@@ -255,35 +262,35 @@
 
 ; efficient matchs.
 (define is_dynt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 dyn))
 
 (define is_table_typevar?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 ((\{ τ ... \}) weakness)))
 
 (define is_tablet?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 ((\{ (\[ t_1 \] : t_2) ... \}) weakness)))
 
 (define is_table_field_typevar?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (\[ τ \] : τ)))
 
 (define is_tablecons_typevar?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (\{ (\[ τ_1 \] = τ_2) ... \})))
 
 (define is_functiont?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (τ_1 -> τ_2)))
 
 (define is_emptupt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                     ($tup)))
 
 (define is_noemptupt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                     ($tup τ_1 τ_2 ...)))
 
 (define (is_tupt? t)
@@ -293,35 +300,35 @@
 ; primitive types
 
 (define is_pt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 pt))
 
 (define is_nil_litt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (nil : nil)))
 
 (define is_numt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 num))
 
 (define is_num_litt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (Number : num)))
 
 (define is_strt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 str))
 
 (define is_str_litt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (String : str)))
 
 (define is_boolt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 bool))
 
 (define is_bool_litt?
-  (redex-match? ext-lang-typed
+  (redex-match? core-lang-typed
                 (Boolean : bool)))
 
 
@@ -348,7 +355,7 @@
 ; the its type variables
 ; RETURNS : (γ (τ ...)), the new environment and the type variable that
 ; correspond to each given identifier
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   extend_gamma : γ (Name ...) -> (γ (τ ...))
 
   [(extend_gamma γ_1 (Name))
@@ -365,7 +372,7 @@
    (where (γ_3 (τ ...)) (extend_gamma γ_2 (Name_2 ...)))]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   in-map : any any -> any
 
   [(in-map · any)
@@ -379,7 +386,7 @@
   )
 
 ; Returns a fresh type system's var
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   FreshVar : V -> α
 
   [(FreshVar ·)
@@ -389,7 +396,7 @@
    (tsv ,(+ 1 (term natural)))]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   set : any any any -> any
 
   [(set · any_1 any_2)
@@ -403,7 +410,7 @@
   )
 
 ; removes a given binding
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   del : any any -> any
 
   [(del (any_1 : any_2 ·) any_1)
@@ -417,7 +424,7 @@
   )
 
 ; remove a list of bindings
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   del* : any (any ...) -> any
 
   [(del* any ())
@@ -432,7 +439,7 @@
 ; any_1 : mapping
 ; any_2 : key
 ; PRE: {in-map any_1 any_2}
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   index : any any -> any
 
   [(index (any_1 : any_2 ·) any_1)
@@ -445,7 +452,7 @@
    (index any_3 any_4)]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   index-γ : γ any -> label
 
   ; first occurrence of the variable
@@ -478,7 +485,7 @@
 ;                                          ;     ;                                                    
 ;                                        ;;      ;                                                    
 ;                                                                                                     
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   subtyping_rel : t t -> any
 
   [(subtyping_rel t dyn)
@@ -595,7 +602,7 @@
          is_table_chain? is_func_chain? is_emptup_chain? is_noemptup_chain?)
 
 ; least upper bound of types
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   supremum_type : t t -> t
 
   [(supremum_type t t)
@@ -626,7 +633,7 @@
    dyn]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   infimum_type : t t -> t
 
   [(infimum_type t t)
@@ -663,7 +670,7 @@
 (provide infimum_type)
 
 ; least upper bound of environments
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   supremum_env : Γ Γ -> Γ
 
   [(supremum_env · Γ)
@@ -685,7 +692,7 @@
    ]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   operands_type : any -> t
 
   [(operands_type arithop)

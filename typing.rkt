@@ -457,9 +457,10 @@
                         (begin
                           (println "Access to: ")
                           (println (term (Name_1 \[ e_1 \])))
-                          (println "from: ")
-                          (println (term C))
-                          (println "may have a non-deterministic behavior")
+                          ; TODO: too verbose, change for line number
+                          ;(println "from: ")
+                          ;(println (term C))
+                          (println "may exhibit non-deterministic behavior")
                           #t)))
    ----------------------------------------------------------------
    (type_e Γ_1 Π cfgKG C (Name_1 \[ e_1 \]) Γ_3 ctet)]
@@ -519,9 +520,10 @@
                         (begin
                           (println "Access to: ")
                           (println (term (Name_1 \[ e_1 \])))
-                          (println "from: ")
-                          (println (term C))
-                          (println "may have a non-deterministic behavior")
+                          ; TODO: too verbose, change for line number
+                          ;(println "from: ")
+                          ;(println (term C))
+                          (println "may exhibit non-deterministic behavior")
                           )))
            
    ; extract the type the value

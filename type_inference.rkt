@@ -25,7 +25,7 @@
 ;                                                                                                     
 
 ; Membership, to be able to use Cs as a set
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   cons_in : Cs c -> any
 
   [(cons_in () c)
@@ -38,7 +38,7 @@
    (cons_in (c_2 ...) c_3)]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   cons_un : Cs Cs -> Cs
 
   [(cons_un (c_1 ...) (c_2 ...))
@@ -50,7 +50,7 @@
 ; Replaces occurrences of $actfunc by a given typevar:
 ; each return statements add restrictions that refer to $actfunc; we replace
 ; $actfunc by the typevar that represents this function
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   replace_actfunc : Cs τ -> Cs
 
   [(replace_actfunc () τ)
@@ -77,7 +77,7 @@
 
 ; Creates the corresponding typevars required to express the domain type of a
 ; function; updates γ correspondigly 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   fun-domain-typevar : γ (Name ...) -> (γ ((Name Number typevar) ...))
 
   [(fun-domain-typevar γ ())
@@ -91,7 +91,7 @@
    (where (γ_3 (τ ...)) (fun-domain-typevar γ_2 (Name_2 ...)))]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   extract_ret_type : Cs τ -> (Cs τ)
 
   [(extract_ret_type (c_1 ...
@@ -128,7 +128,7 @@
 ; constraints for a list of expression (for example, for actual parameters of
 ; a fun call)
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (cons_gen_el I I O O O)
   #:contract (cons_gen_el γ (e ...) (τ ...) γ Cs)
   
@@ -145,7 +145,7 @@
 
 ; constraints gen. for table fields
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (cons_gen_table_field I I O O O)
   #:contract (cons_gen_table_field γ (field_1 field_2 ...) (τ ...) γ Cs)
 
@@ -180,7 +180,7 @@
   )
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (cons_gen I I O O O)
   #:contract (cons_gen γ any τ γ Cs)
 
@@ -597,7 +597,7 @@
              (((Name label typevar) \[ τ_2 \]) = τ_3)
              γ_4 Cs_3)                         ]
 
-  [(side-condition ,(not (redex-match? ext-lang-typed
+  [(side-condition ,(not (redex-match? core-lang-typed
                                        Name
                                        (term e_1))))
    (cons_gen γ_1 e_1 τ_1 γ_2 Cs_1)
@@ -677,7 +677,7 @@
 ;                                                                          
 ;                                                                          
 ;
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   combine_clos_steps : Cs -> Cs
 
   ; Base case
@@ -702,7 +702,7 @@
 ; FUNDAMENTAL PROPERTY: a solution for a given set C, must also be a solution
 ; for the closure set of C
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (cons_clos_step I O)
   #:contract (cons_clos_step Cs c) 
 
@@ -816,7 +816,7 @@
   ; of type constraints, given the structure of our subtyping relation
   [(where (c_1 ... (τ_1 <: τ_2) c_2 ...) (c ...))
    (where (c_3 ... (τ_1 <: ϕ) c_4 ...) (c_1 ... c_2 ...))
-   (side-condition ,(not (redex-match? ext-lang-typed
+   (side-condition ,(not (redex-match? core-lang-typed
                                        bt
                                        (term ξ))))
    (side-condition ,(not (term (cons_in (c ...) (τ_2 <: ϕ ∨ ϕ <: τ_2)))))
@@ -827,7 +827,7 @@
 
   [(where (c_1 ... (τ_1 <: τ_2) c_2 ...) (c ...))
    (where (c_3 ... (τ_1 <: ϕ ∨ ϕ <: τ_1) c_4 ...) (c_1 ... c_2 ...))
-   (side-condition ,(not (redex-match? ext-lang-typed
+   (side-condition ,(not (redex-match? core-lang-typed
                                        bt
                                        (term ξ))))
    (side-condition ,(not (term (cons_in (c ...) (τ_2 <: ϕ ∨ ϕ <: τ_2)))))
@@ -850,7 +850,7 @@
   )
 (provide cons_clos_step)
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   combine_clos_refine_steps : Cs -> Cs
 
   ; Base case
@@ -873,14 +873,14 @@
 (provide combine_clos_refine_steps)
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (cons_refine_step I O)
   #:contract (cons_refine_step Cs c)
 
   [(where (c_1 ... (τ <: υ) c_2 ...) (c ...))
    (where (c_3 ... (τ <: χ) c_4 ...) (c_1 ... c_2 ...))
    (side-condition ,(not (redex-match?
-                          ext-lang-typed
+                          core-lang-typed
                           υ
                           (term χ))))
    -----------------------------------------------------------
@@ -905,7 +905,7 @@
 ;                                                                                          
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (well_form_cons_set I)
   #:contract (well_form_cons_set Cs)
   ; For constructions for which there are no constraints to be applied
@@ -923,37 +923,37 @@
 
 (provide well_form_cons_set)
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   nil_chain : (τ Cs) -> any
 
   [(nil_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_nil_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_nil_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_nil_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -963,37 +963,37 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   num_chain : (τ Cs) -> any
 
   [(num_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_num_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_num_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_num_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1003,37 +1003,37 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   str_chain : (τ Cs) -> any
 
   [(str_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_str_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_str_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_str_chain? (term χ))))
                                                 )
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1044,37 +1044,37 @@
   )
 
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   bool_chain : (τ Cs) -> any
 
   [(bool_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_bool_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_bool_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_bool_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1084,37 +1084,37 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   func_chain : (τ Cs) -> any
 
   [(func_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_func_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_func_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_func_chain? (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1124,26 +1124,26 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   table_chain : (τ Cs) -> any
 
   [(table_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_table_chain? (term χ))
                                                       )))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
                                                  (not (is_table_chain? (term χ))
                                                       )))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1156,12 +1156,12 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   noemptup_chain : (τ Cs) -> any
 
   [(noemptup_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1169,7 +1169,7 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1177,7 +1177,7 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1185,11 +1185,11 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1199,12 +1199,12 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   emptup_chain : (τ Cs) -> any
 
   [(emptup_chain (side-condition
                (τ_1 (c_1 ... c c_2 ...))
-               (or (redex-match ext-lang-typed
+               (or (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1212,7 +1212,7 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1220,7 +1220,7 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: χ ∨ χ <: τ_2)
                                                 (and
                                                  (equal? (term τ_1) (term τ_2))
@@ -1228,11 +1228,11 @@
                                                        (term χ)))
                                                  ))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: (\[ τ_3 \] : τ_4))
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c))
-                   (redex-match ext-lang-typed
+                   (redex-match core-lang-typed
                                 (side-condition (τ_2 <: τ_3 τ_4)
                                                 (equal? (term τ_1) (term τ_2)))
                                 (term c)))))
@@ -1242,7 +1242,7 @@
    #t]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   choose_chain : τ χ Cs -> any
 
   ; dynamic type: nothing to check
@@ -1291,7 +1291,7 @@
   )
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (well_form_cons I I)
   #:contract (well_form_cons Cs c) 
 
@@ -1341,14 +1341,14 @@
 ;                                                          
 ; looks for constraints of the form (τ <: (\[ τ_1 \] : τ_2)), for a given τ, in
 ; order to reconstruct the table type
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   combine_table_cons : Cs τ -> ((\[ τ \] : τ) ...)
 
   [(combine_table_cons Cs τ)
    (combine_table_cons_aux Cs τ ())]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   combine_table_cons_aux : Cs τ ((\[ τ \] : τ) ...) -> ((\[ τ \] : τ) ...)
 
   [(combine_table_cons_aux ()
@@ -1381,7 +1381,7 @@
 
 ; solves constraints for each field of a table 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (sol_gen_table_fields I I I O O)
   #:contract (sol_gen_table_fields Cs V ((\[ τ \] : τ) ...)
                                    ((\[ t \] : t) ...) V)
@@ -1407,7 +1407,7 @@
   )
   
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (sol_gen I I I O O)
   #:contract (sol_gen Cs V ρ t V)
 
@@ -1457,10 +1457,10 @@
    (sol_gen Cs V_2 τ_2 t_2 V_3)
    (sol_gen Cs V_3 τ_3 t_3 V_4)
 
-   (side-condition ,(or (redex-match? ext-lang-typed
+   (side-condition ,(or (redex-match? core-lang-typed
                                       (in-hole Ct α)
                                       (term t_2))
-                        (redex-match? ext-lang-typed
+                        (redex-match? core-lang-typed
                                       (in-hole Ct α)
                                       (term t_3))))
    --------------------------------------------------------------------
@@ -1475,10 +1475,10 @@
    (sol_gen Cs V_2 τ_2 t_2 V_3)
    (sol_gen Cs V_3 τ_3 t_3 V_4)
 
-   (side-condition ,(not (or (redex-match? ext-lang-typed
+   (side-condition ,(not (or (redex-match? core-lang-typed
                                            (in-hole Ct α)
                                            (term t_2))
-                             (redex-match? ext-lang-typed
+                             (redex-match? core-lang-typed
                                            (in-hole Ct α)
                                            (term t_3)))))
    --------------------------------------------------------------------
@@ -1493,10 +1493,10 @@
    (sol_gen Cs V_2 τ_2 t_2 V_3)
    (sol_gen Cs V_3 τ_3 t_3 V_4)
 
-   (side-condition ,(or (redex-match? ext-lang-typed
+   (side-condition ,(or (redex-match? core-lang-typed
                                       (in-hole Ct α)
                                       (term t_2))
-                        (redex-match? ext-lang-typed
+                        (redex-match? core-lang-typed
                                       (in-hole Ct α)
                                       (term t_3))))
    --------------------------------------------------------------------
@@ -1511,90 +1511,16 @@
    (sol_gen Cs V_2 τ_2 t_2 V_3)
    (sol_gen Cs V_3 τ_3 t_3 V_4)
 
-   (side-condition ,(not (or (redex-match? ext-lang-typed
+   (side-condition ,(not (or (redex-match? core-lang-typed
                                            (in-hole Ct α)
                                            (term t_2))
-                             (redex-match? ext-lang-typed
+                             (redex-match? core-lang-typed
                                            (in-hole Ct α)
                                            (term t_3)))))
    --------------------------------------------------------------------
    (sol_gen Cs V_1 τ_1 (t_2 -> t_3) V_4)                            ]
 
   ; Table constructor
-;  [(where (c_1 ... (τ_1 <: ((\{ (\[ τ_2 \] : τ_3)
-;                                (\[ τ_4 \] : τ_5) ... \}) weakness)) c_2 ...)
-;          Cs)
-;
-;   (side-condition ,(not (term (in-map V_1 τ_1))))
-;   (where α (FreshVar V_1))
-;   (where V_2 (τ_1 : α V_1))
-;
-;   (sol_gen_table_fields Cs V_2 ((\[ τ_2 \] : τ_3)
-;                                 (\[ τ_4 \] : τ_5) ...)
-;                         ((\[ t_1 \] : t_2) ...) V_3)
-;
-;   ; fix for duplicated fields
-;   (where ((\[ t_3 \] : t_4) ...)
-;          ,(remove-duplicates (term ((\[ t_1 \] : t_2) ...))))
-;
-;   ; not a recursive type
-;   (side-condition ,(not (redex-match? ext-lang-typed
-;                                       (in-hole Ct α)
-;                                       (term ((\{ (\[ t_1 \] : t_2) ... \})
-;                                              weakness)))))
-;   --------------------------------------------------------------------
-;   (sol_gen Cs V_1 τ_1 ((\{ (\[ t_3 \] : t_4) ... \}) weakness) V_3)]
-;  
-;  [(where (c_1 ... (τ_1 <: ((\{ (\[ τ_2 \] : τ_3)
-;                                (\[ τ_4 \] : τ_5) ... \}) weakness)) c_2 ...)
-;          Cs)
-;
-;   (side-condition ,(not (term (in-map V_1 τ_1))))
-;   (where α (FreshVar V_1))
-;   (where V_2 (τ_1 : α V_1))
-;
-;   (sol_gen_table_fields Cs V_2 ((\[ τ_2 \] : τ_3)
-;                                 (\[ τ_4 \] : τ_5) ...)
-;                         ((\[ t_1 \] : t_2) ...) V_3)
-;
-;   ; fix for duplicated fields
-;   (where ((\[ t_3 \] : t_4) ...)
-;          ,(remove-duplicates (term ((\[ t_1 \] : t_2) ...))))
-;
-;   ; recursive type
-;   (side-condition ,(redex-match? ext-lang-typed
-;                                  (in-hole Ct α)
-;                                  (term ((\{ (\[ t_3 \] : t_4) ... \})
-;                                         weakness))))
-;   --------------------------------------------------------------------
-;   (sol_gen Cs V_1 τ_1 (μ α ((\{ (\[ t_3 \] : t_4) ... \}) weakness)) V_3)]
-
-  
-;  [(where (c_1 ... (τ_1 <: ((\{ (\[ τ_2 \] : τ_3)
-;                                (\[ τ_4 \] : τ_5) ... \}) weakness)) c_2 ...)
-;          Cs)
-;
-;   (side-condition ,(not (term (in-map V_1 τ_1))))
-;   (where α (FreshVar V_1))
-;   (where V_2 (τ_1 : α V_1))
-;
-;   (sol_gen_table_fields Cs V_2 ((\[ τ_2 \] : τ_3)
-;                                 (\[ τ_4 \] : τ_5) ...)
-;                         ((\[ t_1 \] : t_2) ...) V_3)
-;
-;   ; fix for duplicated fields
-;   (where ((\[ t_3 \] : t_4) ...)
-;          ,(remove-duplicates (term ((\[ t_1 \] : t_2) ...))))
-;
-;   ; not a recursive type
-;   (side-condition ,(not (redex-match? ext-lang-typed
-;                                       (in-hole Ct α)
-;                                       (term ((\{ (\[ t_3 \] : t_4) ... \})
-;                                              weakness)))))
-;   --------------------------------------------------------------------
-;   (sol_gen Cs V_1 τ_1 ((\{ (\[ t_3 \] : t_4) ... \}) weakness) V_3)]
-
-  
   [(where (c_1 ... (τ <: ((\{ \}) weakness)) c_2 ...) Cs)
    --------------------------------------------------------------------
    (sol_gen Cs V τ ((\{ \}) weakness) V)]
@@ -1618,7 +1544,7 @@
           ,(remove-duplicates (term ((\[ t_1 \] : t_2) ...))))
 
    ; recursive type
-   (side-condition ,(redex-match? ext-lang-typed
+   (side-condition ,(redex-match? core-lang-typed
                                   (in-hole Ct α)
                                   (term ((\{ (\[ t_3 \] : t_4) ... \})
                                          weakness))))
@@ -1644,7 +1570,7 @@
           ,(remove-duplicates (term ((\[ t_1 \] : t_2) ...))))
 
     ; not a recursive type
-   (side-condition ,(not (redex-match? ext-lang-typed
+   (side-condition ,(not (redex-match? core-lang-typed
                                        (in-hole Ct α)
                                        (term ((\{ (\[ t_3 \] : t_4) ... \})
                                               weakness)))))
@@ -1666,44 +1592,44 @@
   [(side-condition
     ,(not
       (redex-match?
-       ext-lang-typed
+       core-lang-typed
        (c_1 ...
         (side-condition c
                         (or
                          ; no constraint of the form τ_1 <: χ or χ <: τ_1 
-                         (redex-match? ext-lang-typed
+                         (redex-match? core-lang-typed
                                       (side-condition
                                        (ρ_1 <: ρ_2)
                                        (or (and (equal? (term τ_1)
                                                         (term ρ_1))
                                                 (redex-match?
-                                                 ext-lang-typed
+                                                 core-lang-typed
                                                  χ
                                                  (term ρ_2)))
 
                                            (and (equal? (term τ_1)
                                                         (term ρ_1))
                                                 (redex-match?
-                                                 ext-lang-typed
+                                                 core-lang-typed
                                                  (\{ (\[ τ_1 \] = τ_2) ... \})
                                                  (term ρ_2)))
                                            
                                            (and (equal? (term τ_1)
                                                         (term ρ_2))
                                                 (redex-match?
-                                                 ext-lang-typed
+                                                 core-lang-typed
                                                  χ
                                                  (term ρ_1)))
 
                                            (and (equal? (term τ_1)
                                                         (term ρ_2))
                                                 (redex-match?
-                                                 ext-lang-typed
+                                                 core-lang-typed
                                                  (\{ (\[ τ_1 \] = τ_2) ... \})
                                                  (term ρ_1)))))
                                       (term c))
                          ; no constraint of the form τ_1 <: ϕ ∨ ϕ <: τ_1
-                         (redex-match? ext-lang-typed
+                         (redex-match? core-lang-typed
                                       (side-condition
                                        (τ_2 <: χ ∨ χ <: τ_2)
                                        (equal? (term τ_1)
@@ -1711,14 +1637,14 @@
                                       (term c))
 
                          ; no constraint about table fields
-                         (redex-match? ext-lang-typed
+                         (redex-match? core-lang-typed
                                       (side-condition
                                        (τ_2 <: (\[ τ_3 \] : τ_4))
                                        (equal? (term τ_1)
                                                (term τ_2)))
                                       (term c))
 
-                         (redex-match? ext-lang-typed
+                         (redex-match? core-lang-typed
                                       (side-condition
                                        (τ_2 <: τ_3 τ_4)
                                        (equal? (term τ_1)
@@ -1760,7 +1686,7 @@
 ; RETURNS
 ; supremum type, among possible solutions for Cs or dyn, if no solution can be
 ; found
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   gen_solution : Cs τ -> t
 
   [(gen_solution Cs τ)
@@ -1777,7 +1703,7 @@
    dyn]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   type_varids : Cs ((Name label typevar) ...) -> ((Name : t) ...)
 
   [(type_varids Cs ())
@@ -1810,7 +1736,7 @@
 ; PARAMS
 ; (t ...) : list of types from which the supertype must be chosen
 ; t : max. type found so far
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   supertype : (t ...) t -> t
 
   [(supertype () t)
@@ -1824,7 +1750,7 @@
 
 (provide supertype)
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   type_typevar_e : Cs τ -> any
   
   [(type_typevar_e Cs nil)
@@ -1928,7 +1854,7 @@
 
 (provide type_typevar_e)
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   type_typevar_el : Cs (τ ...) -> (any ...)
 
   [(type_typevar_el Cs (τ))
@@ -1941,7 +1867,7 @@
 
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   type_typevar_s : Cs τ -> s
   
   [(type_typevar_s Cs \;)
@@ -2014,7 +1940,7 @@
    (where (s ...) (type_typevar_s Cs (τ_2 τ_3 τ_4 ...)))]
   )
 
-(define-metafunction ext-lang-typed
+(define-metafunction core-lang-typed
   type_term : any -> any
 
   [(type_term s_1)
@@ -2084,7 +2010,7 @@
 ;
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (solutions_sat I)
   #:contract (solutions_sat Cs) 
 
@@ -2096,7 +2022,7 @@
   )
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (sol_sat I I)
   #:contract (sol_sat Cs c) 
 
@@ -2130,7 +2056,7 @@
   )
 
 (define-judgment-form
-  ext-lang-typed
+  core-lang-typed
   #:mode (sol_sat_fields I I O)
   #:contract (sol_sat_fields Cs ((\[ τ \] : τ) ...) ((\[ t \] : t) ...)) 
 
