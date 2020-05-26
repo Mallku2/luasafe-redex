@@ -142,6 +142,18 @@
   	       if not t1 [1] then break end
                end
                return i")
+
+  
+  ; table with weak values, no strong ref
+  (luasafe "local t1 = {[1] = {}}
+               setmetatable(t1, {__mode = \"v\"})
+               local i = 0
+               while true do
+ 	       i = i + 1
+  	       local garbage = {}
+  	       if not t1 [1] then break end
+               end
+               return i")
   
   ; From paper:
   ; cache
@@ -165,16 +177,4 @@
             setmetatable(t1, {__mode = \"v\"})
 
             t1[\"method\"](t1[\"attr2\"])")
-
-  ; table with weak values, no strong ref
-  (luasafe "local t1 = {[1] = {}}
-               setmetatable(t1, {__mode = \"v\"})
-               local i = 0
-               while true do
- 	       i = i + 1
-  	       local garbage = {}
-  	       if not t1 [1] then break end
-               end
-               return i")
-
   )

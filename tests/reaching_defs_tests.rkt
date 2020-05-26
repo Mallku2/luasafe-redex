@@ -245,35 +245,60 @@
   ; x out of scope, not bound to a cte
   (test-equal
    (term (reach_defs ((local (x : num) = 1 in (z = x) end) \;)))
-   (term  (((2 ((((local (x : num) = hole in (z = x) end) |;|) 1)) () ()) (3))
-           ((3 ((((local hole in (z = x) end) |;|) (x = 1))) () ((x = 1))) (4))
-           ((4 ((((local (x : num) = 1 in (hole = x) end) |;|) z))
-               ((x = 1)) ((x = 1))) (5))
-           ((5 ((((local (x : num) = 1 in (z = hole) end) |;|) x))
-               ((x = 1)) ((x = 1))) (6))
-           ((6 ((((local (x : num) = 1 in hole end) |;|) (z = x)))
-               ((x = 1)) ((z = x) (x = 1))) (7))
-           ((7 ((((local (x : num) = 1 in (z = x) end) hole) |;|))
-               ((z = x)) ((z = x))) ()))))
+   (term  (((1 ((((local (x : num) = hole in (z = x) end) |;|) 1)) () ())
+            (2))
+           ((2 ((((local hole in (z = x) end) |;|) (x = 1))) () ((x = 1)))
+            (3))
+           ((3 ((((local (x : num) = 1 in (hole = x) end) |;|) z)) ((x = 1))
+               ((x = 1)))
+            (4))
+           ((4 ((((local (x : num) = 1 in (z = hole) end) |;|) x)) ((x = 1))
+               ((x = 1)))
+            (5))
+           ((5 ((((local (x : num) = 1 in hole end) |;|) (z = x))) ((x = 1))
+               ((z = x) (x = 1)))
+            (6))
+           ((6 ((((local (x : num) = 1 in (z = x) end) hole) |;|)) ((z = x))
+               ((z = x)))
+            ()))))
 
   ; x out of scope, bound to a cte
   (test-equal
    (term (reach_defs ((local (x : ((\{ \}) strong)) = (\{ \}) in (z = x) end)
                       \;)))
-   (term  (((2 ((((local (x : ((|{| |}|) strong)) = hole in (z = x) end) |;|)
-                 (|{| |}|))) () ()) (3))
-           ((3 ((((local hole in (z = x) end) |;|) (x = (|{| |}|))))
-               () ((x = (|{| |}|)))) (4))
-           ((4 ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in (hole = x) end)
-                  |;|) z)) ((x = (|{| |}|))) ((x = (|{| |}|)))) (5))
-           ((5 ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in (z = hole) end)
-                  |;|) x)) ((x = (|{| |}|))) ((x = (|{| |}|)))) (6))
-           ((6 ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in hole end) |;|)
-                 (z = x))) ((x = (|{| |}|))) ((z = x) (x = (|{| |}|)))) (7))
-           ((7 ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in (z = x) end)
-                  hole) |;|)) ((z = x) (x = (|{| |}|)))
-                              ((z = x) (x = (|{| |}|)))) ()))))
-
+   (term  (((1 ((((local (x : ((|{| |}|) strong)) = hole
+                    in (z = x) end) |;|)
+                 (|{| |}|))) () ()) (2))
+           ((2
+             ((((local hole in (z = x) end) |;|) (x = (|{| |}|)))) ()
+             ((x = (|{| |}|))))
+            (3))
+           ((3 ((((local (x : ((|{| |}|) strong)) = (|{| |}|)
+                    in
+                    (hole = x)
+                    end)
+                  |;|)
+                 z)) ((x = (|{| |}|))) ((x = (|{| |}|))))
+            (4))
+           ((4 ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in (z = hole)
+                    end) |;|) x)) ((x = (|{| |}|))) ((x = (|{| |}|))))
+            (5))
+           ((5
+             ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in hole end)
+                |;|) (z = x))) ((x = (|{| |}|)))
+                               ((z = x) (x = (|{| |}|))))
+            (6))
+           ((6
+             ((((local (x : ((|{| |}|) strong)) = (|{| |}|) in (z = x)
+                  end)
+                hole)
+               |;|))
+             ((z = x) (x = (|{| |}|)))
+             ((z = x) (x = (|{| |}|))))
+            ()))))
+  
+  
+  
   (test-equal
    (term (reach_defs (local
                        ($ENV : (1 : num))
