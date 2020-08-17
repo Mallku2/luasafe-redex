@@ -39,9 +39,10 @@
   ; Lua types
   [t  pt
       dyn ; dyn type
-      (t -> t) ; function types
-      (μ α t) ; recursive types
-      ((\{ (\[ t \] : t) ... \}) weakness)
+      ctet
+;      (t -> t) ; function types
+;      (μ α t) ; recursive types
+;      ((\{ (\[ t \] : t) ... \}) weakness)
       tt
       ; type system's variables
       α]
@@ -68,8 +69,7 @@
   [st (Number : num) (Boolean : bool) (String : str) (nil : nil)]
 
   ; Tuple types
-  [tt ;($tup)
-      ($tup t ...)]
+  [tt ($tup t ...)]
 
   ; possible weakness of weak tables
   [weaktable wk
@@ -169,7 +169,6 @@
      (τ returntypevar) ; to identify returned values from functions
      (\[ τ \] = τ) ; to identify table fields
      ; product type: for functions' domains
-     ;($tup)
      ($tup τ_1 ...)
      ;num ; field keys of fields of the form e, in table constructors
      
