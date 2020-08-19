@@ -37,15 +37,12 @@
   ;;;;;;;;;;;;;;;;;;;;;
 
   ; Lua types
-  [t  pt
+  [t  pt ; primitive types
       dyn ; dyn type
-      ctet
-;      (t -> t) ; function types
-;      (μ α t) ; recursive types
-;      ((\{ (\[ t \] : t) ... \}) weakness)
-      tt
-      ; type system's variables
-      α]
+      ctet ; colletable table elements
+      tt ; tuples
+      α ; type system's variables
+      ]
 
   ; type system's var
   [α (tsv natural)]
@@ -55,15 +52,8 @@
       bool
       str ; the whole set of strings
       
-      strWeak
-      strMode
-      strGc
-      
-      st]
-
-  [strWeak strK
-           strV
-           strKv]
+      st ; singleton types
+      ]
 
   ; singleton types
   [st (Number : num) (Boolean : bool) (String : str) (nil : nil)]
@@ -90,11 +80,8 @@
         ((\{ (\[ t \] : t) ... \}) weakness)]
   
   [ncte pt]
-
-
   
-  ; Contexts for type terms, to help defininf predicates about a given type
-  ; structure
+  ; Contexts for type terms, to help defining predicates about type structure
   [Ct hole
       (Ct -> t)
       (t -> Ct)
@@ -168,6 +155,7 @@
      (τ paramtypevar) ; to identify formal parameters of functions
      (τ returntypevar) ; to identify returned values from functions
      (\[ τ \] = τ) ; to identify table fields
+     (\[ τ \] : τ) ; table fields with keys
      ; product type: for functions' domains
      ($tup τ_1 ...)
      ;num ; field keys of fields of the form e, in table constructors
@@ -197,7 +185,6 @@
      (τ (τ ...))
      (τ : Name (τ ...))
      (\( τ \))
-     (\[ τ \] : τ) ; table fields with keys
      (\{ τ ... \})
      (τ binop τ)
      (unop τ)
