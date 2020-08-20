@@ -317,7 +317,9 @@
                         ; τ_1 should be a subtype of a table type that, at least,
                         ; contains a field with a key that is a subtype of τ_2,
                         ; and value with a subtype of (τ_1 \[ τ_2 \])
-                        (((Name label typevar)
+                        (; TODO: this constraint is superflous, it can be
+                         ; inferred from the following constraint
+                         ((Name label typevar)
                           <: (\[ τ_2 \] : ((Name label typevar) \[ τ_2 \])))
                 
                          ; we require for the occurrences of Name to have the
@@ -378,7 +380,9 @@
   ; tableconstructor
   [(cons_gen_table_field γ_1 (field_1 field_2 ...) ((\[ τ_1 \] = τ_2) ...) γ_2
                          Cs_1)
-   (where Cs_2 (cons_un Cs_1
+   (where Cs_2 (cons_un Cs_1              
+                        ; TODO: add weakness info, as in the empty table cons.
+                        ; case?
                         (((\{ (\[ τ_1 \] = τ_2) ... \})
                           <: (\[ τ_1 \] : τ_2)) ...
                          )))

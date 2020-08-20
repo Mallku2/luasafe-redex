@@ -646,22 +646,31 @@
   (test-equal
    (term
     (combine_clos_steps (((x 1 typevar) <: (y 1 typevar))
-                         ((y 1 typevar) <: ((z 1 typevar) -> (z 1 typevar))))))
+                         ((y 1 typevar) <: (((z 1 typevar) paramtypevar)
+                                            -> ((z 1 typevar) returntypevar)))))
+    )
    (term (((x 1 typevar) <: (y 1 typevar))
-          ((y 1 typevar) <: ((z 1 typevar) -> (z 1 typevar)))
-          ((x 1 typevar) <: ((z 1 typevar) -> (z 1 typevar))))))
+          ((y 1 typevar) <: (((z 1 typevar)  paramtypevar)
+                         -> ((z 1 typevar) returntypevar)))
+          ((x 1 typevar) <: (((z 1 typevar)  paramtypevar)
+                         -> ((z 1 typevar) returntypevar))))))
 
   ; closeCong
   (test-equal
    (term
-    (combine_clos_steps (((x 1 typevar) <: ((y 1 typevar) -> (z 1 typevar)))
-                         ((x 1 typevar) <: ((u 1 typevar) -> (v 1 typevar))))))
-   (term (((x 1 typevar) <: ((y 1 typevar) -> (z 1 typevar)))
-          ((x 1 typevar) <: ((u 1 typevar) -> (v 1 typevar)))
-          ((u 1 typevar) <: (y 1 typevar))
-          ((v 1 typevar) <: (z 1 typevar))
-          ((y 1 typevar) <: (u 1 typevar))
-          ((z 1 typevar) <: (v 1 typevar))
+    (combine_clos_steps (((x 1 typevar) <: (((y 1 typevar) paramtypevar)
+                                            -> ((z 1 typevar) returntypevar)))
+                         ((x 1 typevar) <: (((u 1 typevar) paramtypevar)
+                                            -> ((v 1 typevar) returntypevar)))))
+    )
+   (term (((x 1 typevar) <: (((y 1 typevar) paramtypevar)
+                                 -> ((z 1 typevar) returntypevar)))
+          ((x 1 typevar) <: (((u 1 typevar) paramtypevar)
+                             -> ((v 1 typevar) returntypevar)))
+          (((u 1 typevar) paramtypevar) <: ((y 1 typevar) paramtypevar))
+          (((v 1 typevar) returntypevar) <: ((z 1 typevar) returntypevar))
+          (((y 1 typevar) paramtypevar) <: ((u 1 typevar) paramtypevar))
+          (((z 1 typevar) returntypevar) <: ((v 1 typevar) returntypevar))
           )))
 
   ; closeTable Cong
@@ -723,11 +732,14 @@
 
   (test-equal
    (term
-    (combine_clos_steps (((x 1 typevar) <: ((z 1 typevar) -> (z 1 typevar)))
+    (combine_clos_steps (((x 1 typevar) <: (((z 1 typevar) paramtypevar)
+                                            -> ((z 1 typevar) returntypevar)))
                          ((x 1 typevar) <: (y 1 typevar)))))
-   (term (((x 1 typevar) <: ((z 1 typevar) -> (z 1 typevar)))
+   (term (((x 1 typevar) <: (((z 1 typevar)  paramtypevar)
+                             -> ((z 1 typevar) returntypevar)))
           ((x 1 typevar) <: (y 1 typevar))
-          (((z 1 typevar) -> (z 1 typevar)) <: (y 1 typevar)))))
+          ((((z 1 typevar) paramtypevar) -> ((z 1 typevar) returntypevar))
+           <: (y 1 typevar)))))
 
   (test-equal
    (term
@@ -768,43 +780,52 @@
   (test-equal
    (judgment-holds (well_form_cons_set
                     ((123 <: num)
-                     (123 <: ((x 1 typevar) -> (x 1 typevar))))))
+                     (123 <: (((x 1 typevar) paramtypevar)
+                              -> ((x 1 typevar) returntypevar))))))
    #f)
 
   (test-equal
    (judgment-holds (well_form_cons_set
                     ((123 <: num)
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #t)
 
   (test-equal
    (judgment-holds (well_form_cons_set
                     (((y 1 typevar) <: num)
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #f)
 
   (test-equal
    (judgment-holds (well_form_cons_set
                     (((y 1 typevar) <: ((\{ \}) strong))
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #f)
 
   (test-equal
    (judgment-holds (well_form_cons_set
                     (((z 1 typevar) <: ((\{ \}) strong))
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #t)
 
   (test-equal
    (judgment-holds (well_form_cons_set
-                    (((z 1 typevar) <: ((\{ (\[ 1 \] : 1) \}) strong))
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                    (((z 1 typevar) <: ((\{ (\[ 1 \] : 1) \})
+                                        strong))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #t)
 
   (test-equal
    (judgment-holds (well_form_cons_set
-                    (((y 1 typevar) <: ((\{ (\[ 1 \] : 1) \}) strong))
-                     ((y 1 typevar) <: ((x 1 typevar) -> (x 1 typevar))))))
+                    (((y 1 typevar) <: ((\{ (\[ 1 \] : 1) \})
+                                        strong))
+                     ((y 1 typevar) <: (((x 1 typevar) paramtypevar)
+                                        -> ((x 1 typevar) returntypevar))))))
    #f)
 
   (test-equal
@@ -861,19 +882,23 @@
   ; function type
   (test-equal
    (judgment-holds
-    (sol_gen (((x 1 typevar) <: ((y 1 typevar) -> (z 1 typevar)))
-              ((y 1 typevar) <: num)
-              ((z 1 typevar) <: bool)) · (x 1 typevar) (num -> bool)
-                                       ((x 1 typevar) : (tsv 1) ·)))
+    (sol_gen (((x 1 typevar) <: (((y 1 typevar) paramtypevar)
+                                 -> ((z 1 typevar) returntypevar)))
+              (((y 1 typevar) paramtypevar) <: num)
+              (((z 1 typevar) returntypevar) <: bool))
+             · (x 1 typevar) (num -> bool)
+             ((x 1 typevar) : (tsv 1) ·)))
    #t)
 
   (test-equal
    (judgment-holds
-    (sol_gen (((x 1 typevar) <: ((y 1 typevar) -> (x 1 typevar)))
-              ((y 1 typevar) <: num)) ·
-                                      (x 1 typevar)
-                                      (μ (tsv 1) (num -> (tsv 1)))
-                                      ((x 1 typevar) : (tsv 1) ·)))
+    (sol_gen ((((x 1 typevar) returntypevar) <: (((y 1 typevar) paramtypevar)
+                                 -> ((x 1 typevar) returntypevar)))
+              (((y 1 typevar) paramtypevar) <: num))
+             ·
+             ((x 1 typevar) returntypevar)
+             (μ (tsv 1) (num -> (tsv 1)))
+             (((x 1 typevar) returntypevar) : (tsv 1) ·)))
    #t)
 
   ; tables

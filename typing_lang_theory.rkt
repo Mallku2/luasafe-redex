@@ -69,8 +69,6 @@
   [weakness weaktable
             strong]
 
-  
-
   ;;;;;;;;;;;;;;;;;;;;;
   ; Weak table's related types
   ;;;;;;;;;;;;;;;;;;;;;
@@ -154,11 +152,8 @@
      (Name label typevar) ; to identify each occurrence of a given var. ident.
      (τ paramtypevar) ; to identify formal parameters of functions
      (τ returntypevar) ; to identify returned values from functions
-     (\[ τ \] = τ) ; to identify table fields
-     (\[ τ \] : τ) ; table fields with keys
      ; product type: for functions' domains
      ($tup τ_1 ...)
-     ;num ; field keys of fields of the form e, in table constructors
      
      ; redefinition of s and e
      ; stats
@@ -185,28 +180,39 @@
      (τ (τ ...))
      (τ : Name (τ ...))
      (\( τ \))
+     (\[ τ \] = τ)
      (\{ τ ... \})
      (τ binop τ)
-     (unop τ)
-
-     ; TODO: check this
-     ((\{ (\[ τ \] : τ) ... \}) weakness)
-     ]
+     (unop τ)]
 
   ; constraints
   [ρ τ
      χ
-     (\[ τ \] : τ)]
+     ; TODO: this should not be needed; it could be inferred from (τ <: τ τ)
+     (\[ τ \] : τ)
+     ]
 
   ; type vars that refer. to type terms
-  [χ ϕ υ ((\{ (\[ τ \] : τ) (\[ τ \] : τ) ... \}) weakness) ($tup τ_1 τ_2 ...)]
-
+  ; minimals of subt. rel
+  [υ st
+     ($tup)
+     (τ -> τ)
+     ((\{ \}) weakness)]
+  
   ; not minimals
   [ϕ num str bool]
+
+  ; possible type vars. for keys in table fields (for the case of table cons.
+  ; without explicit keys
+  [tfk num τ]
   
-  ; minimals of subt. rel
-  [υ (nil : nil) (Number : num) (Boolean : bool) (String : str) ($tup) (τ -> τ)
-     ((\{ \}) weakness)]
+  [χ ϕ υ
+     ; non-empty table
+     ((\{ (\[ tfk_1 \] : τ_1) (\[ tfk_2 \] : τ_2) ... \}) weakness)
+     ; non-empty tuple
+     ($tup τ_1 τ_2 ...)
+     dyn
+     ]
 
   ; Constraint
   [c (ρ <: ρ)
@@ -251,13 +257,13 @@
   (redex-match? core-lang-typed
                 dyn))
 
-(define is_table_typevar?
-  (redex-match? core-lang-typed
-                ((\{ τ ... \}) weakness)))
+;(define is_table_typevar?
+;  (redex-match? core-lang-typed
+;                ((\{ τ ... \}) weakness)))
 
 (define is_tablet?
   (redex-match? core-lang-typed
-                ((\{ (\[ t_1 \] : t_2) ... \}) weakness)))
+                ((\{ (\[ tfk \] : τ) ... \}) weakness)))
 
 (define is_table_field_typevar?
   (redex-match? core-lang-typed
@@ -547,19 +553,20 @@
    #f]
   )
 
+; chains from the subtyping rel. (including type terms and type variables)
 (define (is_num_chain? t)
-  (or (is_numt? t)
-      (is_num_litt? t)
+  (or (is_num_litt? t)
+      (is_numt? t)
       (is_dynt? t)))
 
 (define (is_str_chain? t)
-  (or (is_strt? t)
-      (is_str_litt? t)
+  (or (is_str_litt? t)
+      (is_strt? t)
       (is_dynt? t)))
 
 (define (is_bool_chain? t)
-  (or (is_boolt? t)
-      (is_bool_litt? t)
+  (or (is_bool_litt? t)
+      (is_boolt? t)
       (is_dynt? t)))
 
 (define (is_nil_chain? t)
@@ -570,8 +577,10 @@
   (or (is_functiont? t)
       (is_dynt? t)))
 
+; in a chain
 (define (is_table_chain? t)
-  (or (is_table_typevar? t)
+  (or ;(is_table_typevar? t)
+      (is_tablet? t)
       (is_table_field_typevar? t)
       (is_tablecons_typevar? t)
       (is_dynt? t)))
