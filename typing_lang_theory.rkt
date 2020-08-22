@@ -77,7 +77,8 @@
         (μ α t) ; recursive types
         ((\{ (\[ t \] : t) ... \}) weakness)]
   
-  [ncte pt]
+  [nctet pt
+         dyn]
   
   ; Contexts for type terms, to help defining predicates about type structure
   [Ct hole
@@ -149,41 +150,41 @@
   
   ; typevariable
   [τ ; fundamental extensions to the syntax introduced by τ
-     (Name label typevar) ; to identify each occurrence of a given var. ident.
-     (τ paramtypevar) ; to identify formal parameters of functions
-     (τ returntypevar) ; to identify returned values from functions
-     ; product type: for functions' domains
-     ($tup τ_1 ...)
+   (Name label typevar) ; to identify each occurrence of a given var. ident.
+   (τ paramtypevar) ; to identify formal parameters of functions
+   (τ returntypevar) ; to identify returned values from functions
+   ; product type: for functions' domains
+   ($tup τ_1 ...)
      
-     ; redefinition of s and e
-     ; stats
-     \;
-     break
-     (return τ ...)
-     (τ_1 τ_2 ... = τ_3 τ_4 ...)
-     (do τ end)
-     (if τ then τ else τ end)
-     (while τ do τ end)
-     (local τ ... = τ ... in τ end)
-     ($statFunCall τ (τ ...))
-     ($statFunCall τ : Name (τ ...))
-     (τ_1 τ_2 τ_3 ...)
+   ; redefinition of s and e
+   ; stats
+   \;
+   break
+   (return τ ...)
+   (τ_1 τ_2 ... = τ_3 τ_4 ...)
+   (do τ end)
+   (if τ then τ else τ end)
+   (while τ do τ end)
+   (local τ ... = τ ... in τ end)
+   ($statFunCall τ (τ ...))
+   ($statFunCall τ : Name (τ ...))
+   (τ_1 τ_2 τ_3 ...)
      
-     ; exps
-     nil Boolean Number String
-     <<<
-     ; var
-     Name 
-     (τ \[ τ \])
-     (function Name (τ ...) τ end)
-     ; To allow function calls in protected mode, in place of expressions.
-     (τ (τ ...))
-     (τ : Name (τ ...))
-     (\( τ \))
-     (\[ τ \] = τ)
-     (\{ τ ... \})
-     (τ binop τ)
-     (unop τ)]
+   ; exps
+   nil Boolean Number String
+   <<<
+   ; var
+   Name 
+   (τ \[ τ \])
+   (function Name (τ ...) τ end)
+   ; To allow function calls in protected mode, in place of expressions.
+   (τ (τ ...))
+   (τ : Name (τ ...))
+   (\( τ \))
+   (\[ τ \] = τ)
+   (\{ τ ... \})
+   (τ binop τ)
+   (unop τ)]
 
   ; constraints
   [ρ τ
@@ -217,6 +218,7 @@
   ; Constraint
   [c (ρ <: ρ)
      (ρ <: ρ ∨ ρ <: ρ)
+     (ρ <:> ρ)
      (τ <: τ τ)]
   ; set of constraints
   [Cs (c ...)]
@@ -279,11 +281,11 @@
 
 (define is_emptupt?
   (redex-match? core-lang-typed
-                    ($tup)))
+                ($tup)))
 
 (define is_noemptupt?
   (redex-match? core-lang-typed
-                    ($tup τ_1 τ_2 ...)))
+                ($tup τ_1 τ_2 ...)))
 
 (define (is_tupt? t)
   (or (is_emptupt? t)
@@ -580,10 +582,10 @@
 ; in a chain
 (define (is_table_chain? t)
   (or ;(is_table_typevar? t)
-      (is_tablet? t)
-      (is_table_field_typevar? t)
-      (is_tablecons_typevar? t)
-      (is_dynt? t)))
+   (is_tablet? t)
+   (is_table_field_typevar? t)
+   (is_tablecons_typevar? t)
+   (is_dynt? t)))
 
 (define (is_emptup_chain? t)
   (or (is_emptupt? t)
@@ -685,6 +687,157 @@
   [(supremum_env (Name : t_1 Γ_1) Γ_2)
    (Name : t_1 (supremum_env Γ_1 Γ_2))
    ]
+  )
+
+;                                                                                            
+;                                                                                            
+;                                                                                            
+;                                                                                            
+;                                                                                            
+;                                                                                            
+;     ;;;      ;;;    ; ;;;;     ;;; ;    ; ;;;  ;     ;    ;;;    ; ;;;;     ;;;      ;;;   
+;    ;   ;    ;   ;   ;;   ;;   ;   ;;    ;;   ; ;     ;   ;   ;   ;;   ;;   ;   ;    ;   ;  
+;   ;        ;     ;  ;     ;  ;     ;    ;      ;     ;  ;     ;  ;     ;  ;        ;     ; 
+;   ;        ;     ;  ;     ;  ;     ;    ;      ;     ;  ;     ;  ;     ;  ;        ;     ; 
+;   ;        ;     ;  ;     ;  ;     ;    ;      ;     ;  ;;;;;;;  ;     ;  ;        ;;;;;;; 
+;   ;        ;     ;  ;     ;  ;     ;    ;      ;     ;  ;        ;     ;  ;        ;       
+;    ;   ;    ;   ;   ;     ;   ;   ;;    ;      ;;   ;;   ;    ;  ;     ;   ;   ;    ;    ; 
+;     ;;;      ;;;    ;     ;    ;;; ;    ;       ;;;; ;    ;;;;   ;     ;    ;;;      ;;;;  
+;                                    ;                                                       
+;                               ;   ;;                                                       
+;                                ;;;;                                                        
+;
+; substitution
+(define-metafunction core-lang-typed
+  subst : t α t -> t
+  
+  ; pt and dyn types
+  [(subst nctet _ _)
+   nctet]
+
+  ; type system var.
+  [(subst (tsv natural) (tsv natural) t)
+   t]
+
+  ; tuples
+  [(subst ($tup t_1 t_2 ...) α t_3)
+   ($tup t_4 t_5 ...)
+
+   (where t_4 (subst t_1 α t_3))
+   ; to avoid defining another function specifically to iterate over tuple
+   ; elements
+   (where ($tup t_5 ...) (subst ($tup t_2 ...) α t_3))]
+
+  ; functions
+  [(subst (t_1 -> t_2) α t_3)
+   (t_4 -> t_5)
+
+   (where t_4 (subst t_1 α t_3))
+   (where t_5 (subst t_2 α t_3))]
+
+  ; tables
+  [(subst ((\{ (\[ t_1 \] : t_2) (\[ t_3 \] : t_4) ... \}) weakness) α t_5)
+   ((\{ (\[ t_6 \] : t_7) (\[ t_8 \] : t_9) ... \}) weakness)
+
+   (where t_6 (subst t_1 α t_5))
+   (where t_7 (subst t_2 α t_5))
+   ; to avoid defining another function specifically to iterate over fields
+   (where ((\{ (\[ t_8 \] : t_9) ... \}) weakness)
+          (subst ((\{ (\[ t_3 \] : t_4) ... \}) weakness) α t_5))]
+
+  ; rec. types
+  [(subst (μ α_1 t_1) α_2 t_2)
+   (μ α_1 t_3)
+
+   (side-condition (not (equal? (term t_1) (term t_2))))
+   (where t_3 (subst t_1 α_2 t_2))]
+
+  ; default: empty tuples, empty tables, different type system vars.,
+  ; capture avoiding in rec. types
+  [(subst t _ _)
+   t]
+  )
+
+(define-judgment-form
+  core-lang-typed
+  #:mode (congr_tup I I)
+  #:contract (congr_tup (t ...) (t ...))
+
+  [------------------
+   (congr_tup () ())]
+
+  [(congr t_1 t_3)
+   (congr_tup (t_2 ...) (t_4 ..))
+   -------------------------------------
+   (congr_tup (t_1 t_2 ...) (t_3 t_4 ..))]
+  )
+
+(define-judgment-form
+  core-lang-typed
+  #:mode (congr_field I I)
+  #:contract (congr_field ((\[ t \] : t) ...) ((\[ t \] : t) ...))
+
+  [------------------
+   (congr_field () ())]
+
+  [(congr t_1 t_5)
+   (congr t_2 t_6)
+   (congr_field ((\[ t_3 \] : t_4) ...)
+                ((\[ t_7 \] : t_8) ..))
+   -------------------------------------
+   (congr_field ((\[ t_1 \] : t_2) (\[ t_3 \] : t_4) ...)
+                ((\[ t_5 \] : t_6) (\[ t_7 \] : t_8) ..))]
+  )
+
+; unfolding as a semantic rel. over type terms
+(define unfold-rel
+  (reduction-relation
+   core-lang-typed
+   #:domain t
+
+   ; one step of unfolding
+   [--> (μ α t)
+        (subst t α t)]
+   )
+  )
+  
+(define-judgment-form
+  core-lang-typed
+  #:mode (congr I I)
+  #:contract (congr t t) 
+
+  ; reflexivity
+  [-----------
+   (congr t t)]
+
+  ; symmetry
+  [(congr t_2 t_1)
+   --------------
+   (congr t_1 t_2)]
+
+  ; unfolding and transitivity
+  [(where (t_2) ,(apply-reduction-relation* unfold-rel (term (μ α t_1))))
+   ---------------------------------------------------------------------
+   (congr (μ α t_1) t_2)]
+
+  ; tuples
+  [(congr_tup (t_1 t_2 ...) (t_3 t_4 ...))
+   --------------------------------------------
+   (congr ($tup t_1 t_2 ...) ($tup t_3 t_4 ...))]
+
+  ; functions
+  [(congr t_1 t_3)
+   (congr t_2 t_4)
+   ----------------------------------
+   (congr (t_1 -> t_2) (t_3 -> t_4))]
+
+  ; functions
+  [(congr_field ((\[ t_1 \] : t_2) (\[ t_3 \] : t_4) ...)
+                ((\[ t_5 \] : t_6) (\[ t_7 \] : t_8) ...))
+   -----------------------------------------------------------------
+   (congr ((\{ (\[ t_1 \] : t_2) (\[ t_3 \] : t_4) ... \}) weakness)
+          ((\{ (\[ t_5 \] : t_6) (\[ t_7 \] : t_8) ... \}) weakness))]
+ 
   )
 
 (define-metafunction core-lang-typed
